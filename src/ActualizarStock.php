@@ -89,14 +89,58 @@ class ActualizarStock
             update_post_meta($product_id, '_type', $product['type']);
             update_post_meta($product_id, '_sku', $product['sku']);
             update_post_meta($product_id, '_regular_price', $product['regular_price']);
-            update_post_meta($product_id, '_price', $product['price']);
-            update_post_meta($product_id, '_syncstock-config', true);
+            update_post_meta($product_id, '_price', $product['regular_price']);
+            update_post_meta($product_id, '_manage_stock', $product['manage_stock']);
             update_post_meta($product_id, '_stock', $product['stock_quantity']);
             update_post_meta($product_id, '_stock_status', $product['stock_quantity'] > 0 ? 'instock' : 'outofstock');
+
+            // Asignar imágenes al producto
+            if (isset($product['images']) && is_array($product['images'])) {
+                $product_images = array();
+                foreach ($product['images'] as $image) {
+                    if (isset($image['src'])) {
+                        $image_id = $this->upload_product_image($image['src']);
+                        if ($image_id) {
+                            $product_images[] = $image_id;
+                        }
+                    }
+                }
+                update_post_meta($product_id, '_product_image_gallery', implode(',', $product_images));
+                set_post_thumbnail($product_id, $product_images[0]);
+            }
 
             echo '<p>Producto agregado: ' . $product['name'] . '</p>';
         } else {
             echo '<p>No se pudo agregar el producto: ' . $product['name'] . '</p>';
         }
+    }
+
+    private function upload_product_image($image_url)
+    {
+        // Descargar la imagen desde la URL
+        $upload_dir = wp_upload_dir();
+        $image_data = file_get_contents($image_url);
+        $filename = basename($image_url);
+        if (wp_mkdir_p($upload_dir['path'])) {
+            $file = $upload_dir['path'] . '/' . $filename;
+        } else {
+            $file = $upload_dir['basedir'] . '/' . $filename;
+        }
+        file_put_contents($file, $image_data);
+
+        // Adjuntar la imagen a WordPress
+        $wp_filetype = wp_check_filetype($filename, null);
+        $attachment = array(
+            'post_mime_type' => $wp_filetype['type'],
+            'post_title' => sanitize_file_name($filename),
+            'post_content' => '',
+            'post_status' => 'inherit'
+        );
+        $attach_id = wp_insert_attachment($attachment, $file);
+        require_once(ABSPATH . 'wp-admin/includes/image.php');
+        $attach_data = wp_generate_attachment_metadata($attach_id, $file);
+        wp_update_attachment_metadata($attach_id, $attach_data);
+
+        return $attach_id;
     }
 }

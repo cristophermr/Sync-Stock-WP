@@ -27,9 +27,7 @@ use SirettSync\ActualizarStock;
 
 // Agregar una página de configuración al menú de WordPress
 add_action('admin_menu', function () {
-    add_options_page('Configuración de SyncStock', 'SyncStock', 'manage_options', 'syncstock-config', 'syncstock_config_page');
-    add_options_page('Borrar Productos', 'DeleteStock', 'manage_options', 'deletestock-config', 'delete_products');
-});
+    add_options_page('Sincronización de Productos', 'Sincronización ERP', 'manage_options', 'syncstock-config', 'syncstock_config_page');});
 
 // Página de configuración del plugin
 function syncstock_config_page()
