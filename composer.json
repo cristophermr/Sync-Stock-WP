@@ -1,0 +1,19 @@
+{
+    "name": "pcmasters/sirett-sync",
+    "description": "Plugin de sincronización de stock de sirett",
+    "type": "wordpress-plugin",
+    "autoload": {
+        "psr-4": {
+            "SirettSync\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Cristopher Morales",
+            "email": "crismorales0415@gmail.com"
+        }
+    ],
+    "require": {
+        "guzzlehttp/guzzle": "^7.5"
+    }
+}
